@@ -33,6 +33,16 @@ public class UsrTransaction {
     @Column(name = "valid_until", nullable = false)
     private Date limitDate;
 
+    @Column(length = 36, nullable = false, unique = true)
+    private String token;
+
+    public UsrTransaction(UserTransType type, long tokenValidity) {
+        this.type = type;
+        createdDate = new Date(); // Calculate token validity range
+        limitDate = new Date(createdDate.getTime() + tokenValidity);
+        token = UUID.randomUUID().toString(); // Generate token
+    }
+
     @PrePersist
     protected void prePersist() {
         this.id = UUID.randomUUID().toString();

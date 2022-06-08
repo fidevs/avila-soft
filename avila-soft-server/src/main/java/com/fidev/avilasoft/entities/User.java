@@ -22,10 +22,10 @@ public class User {
     @Column(length = 36)
     private String uid;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(name = "user_name", length = 20, nullable = false)
+    @Column(name = "user_name", length = 20, nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false)
@@ -33,6 +33,12 @@ public class User {
 
     @Column(name = "is_active", nullable = false)
     private boolean active;
+
+    public User(String email, String username, String password) {
+        this.email = email;
+        this.username = username;
+        this.password = password;
+    }
 
     @PrePersist
     protected void prePersist() {

@@ -28,7 +28,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<com.fidev.avilasoft.entities.User> optCustomer = this.repository.findByUsername(username);
+        Optional<com.fidev.avilasoft.entities.User> optCustomer = this.repository.findByUsernameOrEmail(username, username);
         if (optCustomer.isEmpty()) throw new UsernameNotFoundException("No se encontró el usuario: " + username);
         com.fidev.avilasoft.entities.User customer = optCustomer.get();
         boolean disabled = !customer.isActive();

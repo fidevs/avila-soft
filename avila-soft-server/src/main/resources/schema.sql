@@ -92,6 +92,7 @@ CREATE TABLE IF NOT EXISTS usr_transaction_token (
     created_date timestamp not null,
     valid_until timestamp not null,
     token_type varchar(20) not null,
+    token varchar(36) not null,
     uid varchar(36) not null,
     primary key (token_id)
     );
@@ -111,6 +112,12 @@ ALTER TABLE soft_user
         foreign key (role_id)
             references usr_role;
 
+ALTER TABLE soft_user
+    add constraint UK_gkbxwn1egjav6unxugy1nrctt unique (email);
+
+ALTER TABLE soft_user
+    add constraint UK_nmdfwn1ehhav6unjugy4nrbvk unique (user_name);
+
 ALTER TABLE usr_config
     add constraint FK2j4eck975gcfjdj03kfjqsm7h
         foreign key (uid)
@@ -125,3 +132,6 @@ ALTER TABLE usr_transaction_token
     add constraint FK3etghivjp9s8gp0xrv4xwwc4m
         foreign key (uid)
             references soft_user;
+
+ALTER TABLE usr_transaction_token
+    add constraint UK_r1ajl6kkrra43lr6fdw0ec16t unique (token);
