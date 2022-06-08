@@ -1,9 +1,22 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>login</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="ion-padding ion-text-center">
+<!-- <ion-button [routerLink]="['/home']">Hola</ion-button> -->
+  <div class="logo">
+    <img src="../../assets/icon/favicon.png" width="35%" alt="logo.pmg">
+  </div>
 
-<ion-content>
+  <h2>Iniciar sesión</h2>
 
+  <form>
+    <ion-item lines="none">
+      <ion-input placeholder="Usuario o email" type="text"></ion-input>
+    </ion-item>
+
+    <ion-item lines="none">
+      <ion-input placeholder="Contraseña" type="password"></ion-input>
+    </ion-item>
+
+    <ion-button color="dark" expand="block">Continuar</ion-button>
+  </form>
+
+  <a [routerLink]="['/register']">Crear cuenta</a>
 </ion-content>

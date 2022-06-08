@@ -1,0 +1,36 @@
+ion-toolbar {
+    --ion-toolbar-background:#033863;
+    color: #fff;
+}
+
+ion-content {
+    --ion-background-color:#064579;
+
+    h5 {
+        color: #001628;
+    }
+
+    form {
+        margin-top: 5vh;
+        margin-bottom: 15vh;
+        display: flex;
+        height: 60%;
+        flex-direction: column;
+        justify-content: space-around;
+
+        ion-item {
+            border-color: #00000000;
+            border-bottom-color: rgb(115, 168, 228);
+            border-bottom-width: 2px;
+            border-style: solid;
+
+            ion-input {
+                color: #fff;
+            }
+        }
+
+        ion-button {
+            text-transform: none;
+        }
+    }
+}

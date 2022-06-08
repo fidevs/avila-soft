@@ -1,9 +1,32 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>register</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Crear cuenta</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="ion-padding ion-text-center">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <ion-item lines="none">
+      <ion-input formControlName="email" placeholder="Email" type="email" [maxlength]="255"></ion-input>
+    </ion-item>
 
+    <ion-item lines="none">
+      <ion-input formControlName="user" placeholder="Usuario" type="text" [maxlength]="20"></ion-input>
+    </ion-item>
+
+    <ion-item lines="none">
+      <ion-input formControlName="pswd" placeholder="Contraseña" type="password" [maxlength]="50"></ion-input>
+    </ion-item>
+
+    <ion-item lines="none">
+      <ion-input formControlName="pswdConfirm" placeholder="Confirma la contraseña" type="password" [maxlength]="50"></ion-input>
+    </ion-item>
+
+    <ion-button [disabled]="!form.valid" (click)="onSubmit()" color="secondary" expand="block">Registrarme</ion-button>
+  </form>
+
+  <h5>Tu cuenta será verificada por correo electrónico</h5>
 </ion-content>
