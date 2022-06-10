@@ -37,14 +37,14 @@ public class UsrTransaction {
     private String token;
 
     @Column(name = "token_redeemed")
-    private boolean valid;
+    private boolean redeemed;
 
     public UsrTransaction(UserTransType type, long tokenValidity) {
         this.type = type;
         createdDate = new Date(); // Calculate token validity range
         limitDate = new Date(createdDate.getTime() + tokenValidity);
         token = UUID.randomUUID().toString(); // Generate token
-        valid = true;
+        redeemed = false;
     }
 
     @PrePersist

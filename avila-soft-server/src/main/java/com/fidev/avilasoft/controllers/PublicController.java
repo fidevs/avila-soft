@@ -21,11 +21,17 @@ public class PublicController {
         this.mailService = mailService;
     }
 
-    @PostMapping("/register-user")
+    @PostMapping("/account")
     public String registerUser(@RequestBody NewAccountDTO dto) throws ResponseException {
         log.info("Request to save new account: {}", dto);
         NewAccountDTO account = accountService.recordNewAccount(dto); // Record account
         return mailService.sendActivationEmail(account.getEmail(), account.getUser(), account.getPswd()); // Send email
+    }
+
+    @PutMapping("/account")
+    public String activateAccount(@RequestParam String token) throws ResponseException {
+        log.info("Activating account by token: {}", token);
+        return accountService.activateAccount(token);
     }
 
 }

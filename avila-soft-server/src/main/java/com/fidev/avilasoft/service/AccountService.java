@@ -5,4 +5,6 @@ import com.fidev.avilasoft.views.NewAccountDTO;
 
 public interface AccountService {
     NewAccountDTO recordNewAccount(NewAccountDTO newAccount) throws ResponseException;
+
+    String activateAccount(String token) throws ResponseException;
 }

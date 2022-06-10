@@ -2,8 +2,10 @@ package com.fidev.avilasoft.service.impl;
 
 import com.fidev.avilasoft.exception.ResponseException;
 import com.fidev.avilasoft.service.MailService;
+import com.fidev.avilasoft.util.AppConst;
 import freemarker.template.Configuration;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -16,8 +18,13 @@ import java.util.Map;
 @Slf4j
 @Service
 public class MailServiceImpl implements MailService {
-    public static final String FROM_EMAIL = "fidev.id@outlook.com";
-    public static final String FROM_NAME = "AvilaSoft";
+    @Value("${email.server.from}")
+    private String FROM_EMAIL = "fidev.id@outlook.com";
+    @Value("${email.server.name}")
+    private String FROM_NAME = "AvilaSoft";
+    @Value("${account.activate.url}")
+    private String ACTIVATE_ACCOUNT_URL;
+
     private final Configuration configuration;
     private final JavaMailSender mailSender;
 
@@ -35,7 +42,7 @@ public class MailServiceImpl implements MailService {
         // Object to map in email template
         StringWriter stringWriter = new StringWriter();
         Map<String, Object> model = new HashMap<>();
-        model.put("link", "http://localhost:3000/activate-account?token="+token);
+        model.put("link", ACTIVATE_ACCOUNT_URL+token);
         model.put("user", user);
 
         try {
@@ -49,6 +56,7 @@ public class MailServiceImpl implements MailService {
         } catch (Exception e) {
             log.error("Exception sending email: {}", e.getMessage());
             e.printStackTrace();
+            throw new ResponseException(AppConst.EMAIL_SENT_ERROR_CODE, AppConst.EMAIL_SENT_ERROR_MSG);
         }
         log.info("Sending email...");
         mailSender.send(message); // Send email

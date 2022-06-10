@@ -4,6 +4,7 @@ import com.fidev.avilasoft.entities.*;
 import com.fidev.avilasoft.exception.ResponseException;
 import com.fidev.avilasoft.repositories.RoleRepository;
 import com.fidev.avilasoft.repositories.UserRepository;
+import com.fidev.avilasoft.repositories.UsrTransactionRepository;
 import com.fidev.avilasoft.service.AccountService;
 import com.fidev.avilasoft.util.AppConst;
 import com.fidev.avilasoft.views.NewAccountDTO;
@@ -13,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Date;
 import java.util.Optional;
 
 @Slf4j
@@ -26,12 +28,17 @@ public class AccountServiceImpl implements AccountService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final UsrTransactionRepository transactionRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public AccountServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    public AccountServiceImpl(
+            UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder,
+            UsrTransactionRepository transactionRepository
+    ) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.transactionRepository = transactionRepository;
     }
 
     @Override
@@ -70,5 +77,27 @@ public class AccountServiceImpl implements AccountService {
 
         newAccount.setPswd(activateTrans.getToken()); // Set token to response
         return newAccount;
+    }
+
+    @Override
+    public String activateAccount(String token) throws ResponseException {
+        Optional<UsrTransaction> optTrans = transactionRepository.findByToken(token);
+        if (optTrans.isEmpty()) { // Not found token
+            log.error("Not found transaction by token: {}", token);
+            throw new ResponseException(AppConst.NOT_FOUND, AppConst.NOT_FOUND_TOKEN);
+        }
+        UsrTransaction trans = optTrans.get();
+
+        if (trans.isRedeemed() || new Date().getTime() > trans.getLimitDate().getTime()) {
+            log.error("Token {} isn't valid", token);
+            throw new ResponseException(AppConst.CONFLICT, AppConst.INVALID_TOKEN);
+        }
+
+        trans.setRedeemed(true); // Invalidate token
+        trans.getUser().setActive(true); // Activate user account
+        trans.getUser().getConfig().setLastUpdate(new Date().getTime()); // Update user version
+        this.transactionRepository.save(trans);
+
+        return trans.getUser().getUsername();
     }
 }
