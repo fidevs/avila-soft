@@ -93,6 +93,7 @@ CREATE TABLE IF NOT EXISTS usr_transaction_token (
     valid_until timestamp not null,
     token_type varchar(20) not null,
     token varchar(36) not null,
+    token_redeemed boolean,
     uid varchar(36) not null,
     primary key (token_id)
     );
