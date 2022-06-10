@@ -6,6 +6,10 @@ export const environment = {
   production: false
 };
 
+export const API_URL = 'http://192.168.1.233:8080';
+export const AUTH_CLIENT = 'avila';
+export const AUTH_PSWD = 'password';
+
 /*
  * For easier debugging in development mode, you can import the following file
  * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.
