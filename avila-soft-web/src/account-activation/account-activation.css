@@ -1,0 +1,42 @@
+.activate-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: rgb(19, 93, 119);
+    color: #fff;
+}
+
+.activate-container .form {
+    text-align: center;
+}
+
+.activate-container .form h2 {
+    font-size: 5vh;
+    opacity: .1;
+    color: #000;
+    font-weight: bold;
+    border: #fff;
+    border-width: 4px;
+}
+
+.activate-container .form .logo {
+    opacity: .1;
+}
+
+.activate-container .form .movement {
+    animation: zoom-in-zoom-out 1s ease infinite;
+}
+
+@keyframes zoom-in-zoom-out {
+    0% {
+        transform: scale(1, 1);
+    }
+    50% {
+        transform: scale(1.5, 1.5);
+    }
+    100% {
+        transform: scale(1, 1);
+    }
+}
