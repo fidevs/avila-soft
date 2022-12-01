@@ -21,6 +21,11 @@ export class LoginPage implements OnInit {
     this.auth.sessionIsValid(this.auth.currentSession) && this.goToHome();
   }
 
+  ionViewWillEnter() {
+    console.log("ionViewWillEnter")
+    this.auth.sessionIsValid(this.auth.currentSession) && this.goToHome();
+  }
+
   onSubmit() {
     this.loading = true;
     this.form.disable();

@@ -11,12 +11,14 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import javax.mail.internet.MimeMessage;
+import javax.transaction.Transactional;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @Service
+@Transactional
 public class MailServiceImpl implements MailService {
     @Value("${email.server.from}")
     private String FROM_EMAIL = "fidev.id@outlook.com";
@@ -59,7 +61,11 @@ public class MailServiceImpl implements MailService {
             throw new ResponseException(AppConst.EMAIL_SENT_ERROR_CODE, AppConst.EMAIL_SENT_ERROR_MSG);
         }
         log.info("Sending email...");
-        mailSender.send(message); // Send email
+        try {
+            mailSender.send(message); // Send email
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         log.info("Email sent successfully!");
         return to;
     }

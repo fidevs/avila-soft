@@ -62,7 +62,7 @@ public class AccountServiceImpl implements AccountService {
 
 
         // Generate new account
-        User user = new User(newAccount.getEmail(), newAccount.getUser(), newAccount.getPswd());
+        User user = new User(newAccount.getEmail(), newAccount.getUser(), passwordEncoder.encode(newAccount.getPswd()));
         user.setRole(role); // Configure role
         role.getUsers().add(user);
         UserConfig config = new UserConfig(); // Generate account configs

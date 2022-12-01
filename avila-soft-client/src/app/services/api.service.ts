@@ -1,40 +1,33 @@
-import { HttpErrorResponse, HttpEvent, HttpHandler, HttpHeaders, HttpInterceptor, HttpRequest } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { from, Observable, throwError } from "rxjs";
-import { AuthService } from "../services/auth.service";
-import { API_URL } from "src/environments/environment";
-import { catchError, switchMap } from "rxjs/operators";
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { ToastController } from '@ionic/angular';
+import { Observable } from 'rxjs';
+import { first, tap } from 'rxjs/operators';
+import { NewAccountI } from '../models/account.model';
+import { StorageService } from './storage.service';
 
-@Injectable()
-export class AuthInterceptor implements HttpInterceptor {
+@Injectable({
+  providedIn: 'root'
+})
+export class ApiService {
 
-  constructor(private authService: AuthService) { }
+  constructor(private toastCtrl: ToastController, private storage: StorageService, private http: HttpClient, private router: Router) {}
 
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    console.log("Intercept")
-    if (this.isProtectedUrl(request.url)) {
-      from(this.authService.getAccessToken()).pipe(
-        switchMap((accessToken) => {
-          return next.handle(
-            request.clone({
-              url: `${API_URL}${request.url}`,
-              headers: new HttpHeaders({
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-              }),
-            })
-          ).pipe(catchError(this.handleError));
-        })
-      );
-    }
-    return next.handle(request.clone({
-      url: `${API_URL}${request.url}`,
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-    })).pipe(catchError(this.handleError));
+  saveAccount(email, username, password): Observable<NewAccountI> {
+    const body: NewAccountI = { email, user: username, pswd: password };
+    return this.http.post<NewAccountI>('/public/account', body).pipe(
+      tap(() => {}, error => this.handleError(error))
+    );
   }
 
-  handleError(httpError: HttpErrorResponse) {
-    let toastProps: any = { duartion: 2000, position: 'top', message: 'Ocurrió un error inesperado', color: 'warning' };
+  async handleError(httpError: HttpErrorResponse) {
+    let toastProps: any = { duration: 2000, position: 'top', message: 'Ocurrió un error inesperado', color: 'warning', buttons: [
+      {
+        icon: 'close-outline',
+        role: 'cancel',
+      }
+    ], };
     if (httpError.status === 0) {
       // A client-side or network error occurred. Handle it accordingly.
       console.error('An error occurred:', httpError.error);
@@ -66,6 +59,7 @@ export class AuthInterceptor implements HttpInterceptor {
               message: 'Tu sesión ha expirado',
               color: 'danger'
             };
+            this.router.navigateByUrl('/');
             break;
           case 409:
             toastProps = {
@@ -76,7 +70,7 @@ export class AuthInterceptor implements HttpInterceptor {
             };
             break;
           default:
-            return throwError(httpError);
+            toastProps = { ...toastProps,  message: 'Error desconocido' }
             break;
         }
       }
@@ -84,11 +78,8 @@ export class AuthInterceptor implements HttpInterceptor {
     // this.authService.toast.create({ ...toastProps }).then(toast => toast.present().then(() => console.log('SHOW')).catch(() => console.log('ERROR')));
     // Return an observable with a user-facing error message.
     // return throwError(() => new Error('Something bad happened; please try again later.'));
-    return throwError(httpError);
-  }
-
-  private isProtectedUrl(url: string): Boolean {
-    return !(['/oauth/token', '/public/account'].includes(url))
+    const toast = await this.toastCtrl.create({ ...toastProps });
+    toast.present();
   }
 
 }

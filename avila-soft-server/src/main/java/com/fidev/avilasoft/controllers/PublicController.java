@@ -22,10 +22,11 @@ public class PublicController {
     }
 
     @PostMapping("/account")
-    public String registerUser(@RequestBody NewAccountDTO dto) throws ResponseException {
+    public NewAccountDTO registerUser(@RequestBody NewAccountDTO dto) throws ResponseException {
         log.info("Request to save new account: {}", dto);
         NewAccountDTO account = accountService.recordNewAccount(dto); // Record account
-        return mailService.sendActivationEmail(account.getEmail(), account.getUser(), account.getPswd()); // Send email
+        mailService.sendActivationEmail(account.getEmail(), account.getUser(), account.getPswd()); // Send email
+        return account;
     }
 
     @PutMapping("/account")

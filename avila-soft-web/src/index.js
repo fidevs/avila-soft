@@ -6,7 +6,7 @@ import AccountActivation from './account-activation/account-activation';
 import reportWebVitals from './reportWebVitals';
 
 import {
-  BrowserRouter,
+  HashRouter,
   Routes,
   Route,
 } from "react-router-dom";
@@ -15,12 +15,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <BrowserRouter>
+  <HashRouter>
     <Routes>
       <Route path='/' element={<App />} />
       <Route path="/activate-account" element={<AccountActivation />} />
     </Routes>
-  </BrowserRouter>
+  </HashRouter>
 );
 
 // If you want to start measuring performance in your app, pass a function

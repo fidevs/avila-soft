@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
+import { ApiService } from '../services/api.service';
 
 @Component({
   selector: 'app-register',
@@ -14,8 +16,9 @@ export class RegisterPage implements OnInit {
     pswd: new FormControl('', [Validators.required, Validators.maxLength(50)]),
     pswdConfirm: new FormControl('', [Validators.required, Validators.maxLength(50)])
   });
+  loading = false;
 
-  constructor(public toastController: ToastController) { }
+  constructor(public toastController: ToastController, private api: ApiService, private router: Router) { }
 
   ngOnInit() {
   }
@@ -26,7 +29,21 @@ export class RegisterPage implements OnInit {
     if (this.form.valid) {
       if (pswd !== pswdConfirm) { this.presentToast('', 'Las contraseñas no coinciden', 'danger', 3000); }
       else {
-        this.presentToast('', 'Datos correctos!', 'success', 3000);
+        this.loading = true;
+        this.form.disable();
+        this.api.saveAccount(email, user, pswd).subscribe({
+          next: account => {
+            this.presentToast('', `Se han enviadoc instrucciones para verificar la cuenta al correo ${account.email}`, 'success', 4000);
+            this.form.reset();
+            this.form.enable();
+            this.loading = false;
+            this.router.navigateByUrl('/');
+          },
+          error: () => {
+            this.form.enable();
+            this.loading = false;
+          }
+        });
       }
     } else { this.presentToast('Datos incorrectos', '', 'warning'); }
   }

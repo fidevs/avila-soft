@@ -8,7 +8,7 @@ import { StorageService } from './storage.service';
 
 import { AUTH_CLIENT, AUTH_PSWD } from '../../environments/environment';
 import { ToastController } from '@ionic/angular';
-import { switchMap } from 'rxjs/operators';
+import { first, switchMap, tap } from 'rxjs/operators';
 
 const SESSION_KEY = "auth_session";
 
@@ -25,7 +25,7 @@ export class AuthService { // TODO: (LOGIN) [invalid_grant] show message
 
   // Login
   login(username: string, password: string): Observable<HttpResponse<OauthSessionI>> {
-    const request = this.http.post<OauthSessionI>(
+    return this.http.post<OauthSessionI>(
       '/oauth/token',
       null, {
       params: {
@@ -35,18 +35,17 @@ export class AuthService { // TODO: (LOGIN) [invalid_grant] show message
         username, password,
       },
       observe: 'response'
-    })
-
-    request.subscribe({
-      next: res => this.saveNewSession(res.body),
-      error: async error => this.handleError(error)
-    });
-
-    return request;
+    }).pipe(
+      tap(
+        data => this.saveNewSession(data.body),
+        error => this.handleError(error)
+      ), first()
+    );
   }
 
   // Load session on startup
   async loadSession() {
+    console.log("Load session")
     const session: OauthSessionI = await this.storage.getObject(SESSION_KEY);
     if (this.sessionIsValid(session)) {
       this.isAuthenticated.next(true);
@@ -57,12 +56,12 @@ export class AuthService { // TODO: (LOGIN) [invalid_grant] show message
   // Consult or refresh access token
   async getAccessToken(): Promise<string> {
     if (this.sessionIsValid(this.currentSession)) return this.currentSession.access_token;
-    else return this.refreshToken(this.currentSession.refresh_token).toPromise();
+    else return this.refreshToken(this.currentSession.refresh_token);
   }
 
   // Refresh access token
-  refreshToken(refreshToken: string): Observable<string> {
-    const response = this.http.post<OauthSessionI>(
+  refreshToken(refreshToken: string): Promise<string> {
+    return this.http.post<OauthSessionI>(
       '/oauth/token',
       null, {
       params: {
@@ -72,18 +71,17 @@ export class AuthService { // TODO: (LOGIN) [invalid_grant] show message
         refresh_token: refreshToken,
       },
       observe: 'response'
-    });
-
-    response.subscribe({
-      next: res => this.saveNewSession(res.body),
-      error: async err => this.handleError(err)
-    });
-
-    return response.pipe(switchMap(res => res.body.access_token));
+    }).pipe(
+      tap(
+        data => this.saveNewSession(data.body),
+        error => this.handleError(error)
+      ), first()
+    ).pipe(switchMap(res => res.body.access_token)).toPromise();
   }
 
   // Check session validity
   sessionIsValid(session: OauthSessionI): boolean {
+    console.log("Session is valid")
     if (session != null && session.access_token && session.refresh_token && session.expires_in) {
       const current = new Date().getTime();
       return session.expires_in > current;
@@ -98,12 +96,14 @@ export class AuthService { // TODO: (LOGIN) [invalid_grant] show message
   }
 
   async handleError(httpError: HttpErrorResponse) {
-    let toastProps: any = { duration: 2000, position: 'top', message: 'Ocurrió un error inesperado', color: 'warning', buttons: [
-      {
-        icon: 'close-outline',
-        role: 'cancel',
-      }
-    ], };
+    let toastProps: any = {
+      duration: 2000, position: 'top', message: 'Ocurrió un error inesperado', color: 'warning', buttons: [
+        {
+          icon: 'close-outline',
+          role: 'cancel',
+        }
+      ],
+    };
     if (httpError.status === 0) {
       // A client-side or network error occurred. Handle it accordingly.
       console.error('An error occurred:', httpError.error);
@@ -146,7 +146,7 @@ export class AuthService { // TODO: (LOGIN) [invalid_grant] show message
             };
             break;
           default:
-            toastProps = { ...toastProps,  message: 'Error desconocido' }
+            toastProps = { ...toastProps, message: 'Error desconocido' }
             break;
         }
       }
